@@ -1,0 +1,30 @@
+{
+  "name": "felix",
+  "version": "1.0.0",
+  "description": "",
+  "type": "module",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "deploy": "node deploy.js"
+  },
+  "imports": {
+    "#events/*": "./events/*.js",
+    "#commands/*": "./commands/*.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mintybayleaf/felix.git"
+  },
+  "private": true,
+  "devDependencies": {
+    "@eslint/js": "^9.18.0",
+    "@stylistic/eslint-plugin-js": "^2.13.0",
+    "eslint": "^9.18.0",
+    "globals": "^15.14.0"
+  },
+  "dependencies": {
+    "discord.js": "^14.17.3",
+    "dotenv": "^16.4.7"
+  }
+}
