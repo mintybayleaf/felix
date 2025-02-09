@@ -1,13 +1,10 @@
-import { SlashCommandBuilder } from 'discord.js';
+import { SlashCommandBuilder, MessageFlags } from 'discord.js';
 
 const name = 'ping'
-
-function create () {
-    return new SlashCommandBuilder().setName(name).setDescription('Replys with Pong!');
-}
+const data = new SlashCommandBuilder().setName(name).setDescription('Testing!');
 
 async function execute (interaction) {
-    interaction.reply({ content: 'pong!', ephemeral: true });
+    interaction.reply({ content: 'pong!', flags: MessageFlags.Ephemeral });
 }
 
-export { name, create, execute };
+export { name, data, execute };

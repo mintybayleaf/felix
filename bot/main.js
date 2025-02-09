@@ -1,26 +1,27 @@
 import {} from 'dotenv/config';
+import fs from 'fs';
 import { Client, Events, GatewayIntentBits, Collection } from 'discord.js';
 
 // Create a new client instance
 const client = new Client({ intents: [GatewayIntentBits.Guilds]});
 client.commands = new Collection();
-client.events = new Collection();
 
-// Register events to load and execute
-client.events.set(Events.ClientReady, { file: '#events/clientReady', once: true });
-client.events.set(Events.InteractionCreate, { file: '#events/interactionCreate', once: false });
+const events = fs
+    .readdirSync('./events')
+    .filter((file) => file.endsWith('.js'))
+    .map((file) => file.slice(0, -3));
 
 // Register event handlers
-for (const [name, e] of client.events.entries()) {
-    console.log(`Attempting to load event handler ${e.file} for event ${name}`);
-    const event = await import(e.file);
-    if (e.once) {
-        client.once(name, (...args) => {
-            event.execute(...args);
+for (const event of events) {
+    console.log(`Loading event handler ${event}`);
+    const handler = await import(`#events/${event}`);
+    if (handler.once) {
+        client.once(event, (...args) => {
+                handler.execute(...args)
         });
     } else {
-        client.on(name, (...args) => {
-            event.execute(...args);
+        client.on(event, (...args) => {
+            handler.execute(...args);
         });
     }
 }

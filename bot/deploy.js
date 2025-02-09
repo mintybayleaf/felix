@@ -11,9 +11,9 @@ async function loadCommands() {
     for (let file of files) {
         console.log(`Attempting to load ${file} command`);
         const command = await import(`#commands/${file}`);
-        if ('name' in command && 'execute' in command && 'create' in command) {
-            console.log(`Registering ${command.name} command`);
-            commands.push(command.create().toJSON());
+        if ('name' in command && 'execute' in command && 'data' in command) {
+            console.log(`Registering ${command.data.name} command`);
+            commands.push(command.data.toJSON());
         }
     }
     return commands;

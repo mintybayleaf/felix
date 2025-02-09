@@ -1,0 +1,19 @@
+{
+  "name": "felix-db",
+  "version": "1.0.0",
+  "description": "",
+  "type": "module",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "node ."
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mintybayleaf/felix.git"
+  },
+  "private": true,
+  "dependencies": {
+    "axios": "^1.7.9"
+  }
+}
