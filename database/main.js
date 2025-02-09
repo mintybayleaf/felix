@@ -5,6 +5,7 @@ import axios from "axios";
 const DEFAULT_VERSION = "0.8.13"
 const HOSTNAME = 'pf2etools.com'
 const CONCURRENT_API_CALLS = 5
+const API_THROTTLE_MS = 1000
 
 function createHeaders (type) {
    return { headers:
@@ -16,7 +17,6 @@ function createHeaders (type) {
            }
     }
 }
-
 
 async function get( {type, json = null} ) {
     let url = null
@@ -31,6 +31,8 @@ async function get( {type, json = null} ) {
     } catch(error) {
         console.error(`Error while fetching ${url}`);
     }
+
+    return {}
 }
 
 function partition(iterable, size = 10) {
@@ -50,31 +52,27 @@ function sleep(ms) {
 
 async function* fetchByType(type, size = 10) {
     const index = await get({type});
-    const batches = partition(Object.entries(index),  CONCURRENT_API_CALLS)
+    const batches = partition(Object.entries(index), CONCURRENT_API_CALLS)
+    let results = []
 
     for (const batch of batches) {
         const promises = batch.map(([_, json]) => get({type, json}))
         const resolvedPromises = await Promise.allSettled(promises)
-        const values = resolvedPromises
+        const items = resolvedPromises
             .filter(({status}) => status === 'fulfilled')
             .map(({value}) => value)
-        yield values
-        await sleep(1000)
-    }
-}
-
-async function* fetchBatches(type, size) {
-    let batch = []
-    for await (const items of fetchByType(type, size)) {
-        batch.push(...items)
-        if (batch.length % size === 0) {
-            yield batch
-            batch = []
+        results.push(...items)
+        if (results.length % size === 0) {
+            yield results
+            results = []
         }
+        // Respect the websites API
+        await sleep(API_THROTTLE_MS)
     }
 
-    yield batch
+    yield results;
 }
+
 
 async function extract(producerFn, transformFn, consumerFn){
     for await (const batch of producerFn()) {
@@ -83,7 +81,7 @@ async function extract(producerFn, transformFn, consumerFn){
 }
 
 async function ancestries() {
-    const producerFn = () => fetchBatches('ancestries', 10)
+    const producerFn = () => fetchByType('ancestries', 10)
     const consumerFn = console.log
     const transformFn = (item) => (item?.ancestry || item?.versatileHeritage).at(0)?.name
     await extract(producerFn, transformFn ,consumerFn)
