@@ -7,14 +7,14 @@ client.commands = new Collection();
 client.events = new Collection();
 
 // Register events to load and execute
-client.events.set(Events.ClientReady, { file: '#events/clientReady.js', once: true });
-client.events.set(Events.InteractionCreate, { file: '#events/interactionCreate.js', once: false });
+client.events.set(Events.ClientReady, { file: '#events/clientReady', once: true });
+client.events.set(Events.InteractionCreate, { file: '#events/interactionCreate', once: false });
 
 // Register event handlers
 for (const [name, e] of client.events.entries()) {
+    console.log(`Attempting to load event handler ${e.file} for event ${name}`);
     const event = await import(e.file);
     if (e.once) {
-        // When the client is ready, run this code (only once).
         client.once(name, (...args) => {
             event.execute(...args);
         });
